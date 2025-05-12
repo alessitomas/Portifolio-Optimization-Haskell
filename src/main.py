@@ -28,7 +28,6 @@ def calculate_anual_return(weight_vector, daily_returns_matix, year_days):
     return total_daily_return, mean_return_annualized
     
 
-
 def calculate_standard_deviation(total_daily_return, year_days):
     daily_volatility = total_daily_return.std()
     annualized_volatility = daily_volatility * np.sqrt(year_days)
@@ -39,8 +38,8 @@ def calculate_sharpe_ratio(stock_data, weight_vector, year_days, comb):
     total_daily_return, anual_return = calculate_anual_return(weight_vector, daily_returns_matrix, year_days)
     annual_vol = calculate_standard_deviation(total_daily_return, year_days)
     return anual_return / annual_vol
-import numpy as np
 
+import numpy as np
 import copy
 def generate_all_combs(dow_tickers):
     all_combs = [] 
@@ -87,7 +86,6 @@ def generate_simulations(stock_data, stock_tickets, year_days=252):
             print(f"Calculate Sharpe Ratio: {sharpe_ratio} , for comb {comb_index}")
 
          
-    
 
 def main():
     url = "http://0.0.0.0:8000/api/dow-jones-data"
