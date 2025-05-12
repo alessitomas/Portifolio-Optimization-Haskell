@@ -22,9 +22,7 @@ let generate_weight_vector () =
   Array.map (fun x -> x /. sum) weights
 
 
-
 open Data_loader
-
 
 (* return a 2D array of daily returns *)
 let generate_daily_return_matrix (stock_data: stock_data list) (stock_tickers: string list) =
