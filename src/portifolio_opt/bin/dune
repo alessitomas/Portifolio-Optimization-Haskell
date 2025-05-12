@@ -1,0 +1,4 @@
+(executable
+ (public_name portifolio_opt)
+ (name main)
+ (libraries portifolio_opt))

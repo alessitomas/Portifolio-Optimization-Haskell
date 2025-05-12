@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/portifolio_opt/META"
+  "_build/install/default/lib/portifolio_opt/dune-package"
+  "_build/install/default/lib/portifolio_opt/opam"
+]
+bin: [
+  "_build/install/default/bin/portifolio_opt"
+]

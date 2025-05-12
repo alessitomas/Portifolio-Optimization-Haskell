@@ -1,0 +1,17 @@
+# dune exec portifolio_opt
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /Users/alessi/.cache/dune/db
+# Workspace root:
+# /Users/alessi/Workspace/insper/7-semestre/prog-func/functional-programming/Portifolio-Optimization-Haskell/src/portifolio_opt
+# Auto-detected concurrency: 8
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; instrument_with = []
+#  }
+$ /Users/alessi/Workspace/insper/7-semestre/prog-func/functional-programming/Portifolio-Optimization-Haskell/src/_opam/bin/ocamlc.opt -config > /var/folders/zt/kn4wxn4175s4_y1mbpx6v9_w0000gn/T/dune_4eaf81_output
