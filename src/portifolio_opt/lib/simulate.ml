@@ -40,8 +40,6 @@ let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
   let best_sharpe = Atomic.make neg_infinity in
   let best_weights = Atomic.make None in 
   let best_comb = Atomic.make None in
-  let all_results_lock = Mutex.create () in
-  let all_results = ref [] in
   
   let num_domains = Domain.recommended_domain_count () in
   let pool = Task.setup_pool ~num_domains () in
@@ -81,15 +79,11 @@ let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
           Atomic.set best_weights !local_best_weights;
           Atomic.set best_comb (Some comb);
         );
-        
-        (* Add local results to global results under mutex protection *)
-        Mutex.protect all_results_lock (fun () ->
-          all_results := !local_results @ !all_results
-        )
+       
       )
   );
   
   (* Clean up the thread pool *)
   Task.teardown_pool pool;
   
-  (Atomic.get best_sharpe, Atomic.get best_weights, Atomic.get best_comb, !all_results)
+  (Atomic.get best_sharpe, Atomic.get best_weights, Atomic.get best_comb)
