@@ -16,7 +16,7 @@ let simulate_portifolio_optimization (stock_data: stock_data list) =
   let all_results = ref [] in
 
   List.iteri (fun _ comb ->
-    for _ = 1 to 2 do
+    for _ = 1 to 1000 do
       let weights = generate_weight_vector () in
       let sharpe_ratio = calculate_sharpe_ratio stock_data weights 252 comb in
       
@@ -57,7 +57,7 @@ let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
         let local_best_weights = ref None in
         
         (* For each combination, we run 1000 weight simulations *)
-        for _ = 1 to 2 do
+        for _ = 1 to 1000 do
           let weights = generate_weight_vector () in
           let sharpe_ratio = calculate_sharpe_ratio stock_data weights 252 comb in
           

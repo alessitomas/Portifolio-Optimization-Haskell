@@ -56,7 +56,7 @@ let generate_daily_return_matrix (stock_data: stock_data list) (stock_tickers: s
   result
 
 
-(* Matrix-vector multiplication: matrix @ vector *)
+(* Matrix-vector multiplication - pure OCaml implementation *)
 let matrix_vector_mul matrix vector =
   let rows = Array.length matrix in
   let result = Array.make rows 0.0 in
