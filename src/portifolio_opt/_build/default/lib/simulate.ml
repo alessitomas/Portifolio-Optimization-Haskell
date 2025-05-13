@@ -7,7 +7,6 @@ open Domainslib
      1.1 for each combination, generate 1000 weight vector
      1.2 for each weight vector, calculate the sharpe ratio
      1.3 store the best sharpe ratio, its best weight vector and its combination.
-     1.4 store all sharpe ratios, weight vectors and combinations in a list.
 *)
 let simulate_portifolio_optimization (stock_data: stock_data list) =
   let combinations = portifolio_combinations in
@@ -16,23 +15,26 @@ let simulate_portifolio_optimization (stock_data: stock_data list) =
   let best_comb = ref None in
   let all_results = ref [] in
 
-  List.iteri (fun comb_index comb ->
-    for _ = 1 to 1000 do
+  List.iteri (fun _ comb ->
+    for _ = 1 to 2 do
       let weights = generate_weight_vector () in
       let sharpe_ratio = calculate_sharpe_ratio stock_data weights 252 comb in
       
       if sharpe_ratio > !best_sharpe then (
         best_sharpe := sharpe_ratio;
         best_weights := Some weights;
-        best_comb := Some comb
+        best_comb := Some comb;
+        all_results := (sharpe_ratio, weights, comb) :: !all_results;
       );
-
-      all_results := (sharpe_ratio, weights, comb) :: !all_results;
-      Printf.printf "Calculated Sharpe Ratio: %f, for comb %d\n" sharpe_ratio comb_index;
     done
   ) combinations;
 
   (!best_sharpe, !best_weights, !best_comb, !all_results)
+
+(* Sequential optimization that returns the same format as parallel *)
+let simulate_sequential_portfolio_optimization (stock_data: stock_data list) =
+  let (sharpe, weights, comb, _) = simulate_portifolio_optimization stock_data in
+  (sharpe, weights, comb)
 
 (* Parallel portfolio optimization simulation *)
 let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
@@ -54,11 +56,8 @@ let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
         let local_best_sharpe = ref neg_infinity in
         let local_best_weights = ref None in
         
-        (* Create a local array for batch collection *)
-        let local_results = ref [] in
-        
         (* For each combination, we run 1000 weight simulations *)
-        for _ = 1 to 4 do
+        for _ = 1 to 2 do
           let weights = generate_weight_vector () in
           let sharpe_ratio = calculate_sharpe_ratio stock_data weights 252 comb in
           
@@ -67,10 +66,6 @@ let simulate_parallel_portfolio_optimization (stock_data: stock_data list) =
             local_best_sharpe := sharpe_ratio;
             local_best_weights := Some weights;
           );
-          
-          (* Add to local results *)
-          local_results := (sharpe_ratio, weights, comb) :: !local_results;
-          
         done;
         
         (* Update global best under atomic protection *)
