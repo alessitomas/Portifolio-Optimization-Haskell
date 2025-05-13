@@ -1,3 +1,5 @@
 env*
 __pycache__*
 _opam*
+
+portifolio_opt/_build/
