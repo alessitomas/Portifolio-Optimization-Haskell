@@ -18,6 +18,7 @@ The application:
 
 - OCaml (version 5.3.0 or newer)
 - OPAM (OCaml package manager)
+- Python 3.8+ (for data API and visualization)
 
 ### Installing Dependencies
 
@@ -38,7 +39,34 @@ opam install yojson
 opam install csv
 opam install ptime
 opam install domainslib  # For parallelism
+
+# Install Python dependencies for data API and visualization
+cd finance_data_api
+python -m pip install -r requirements.txt
+cd ../src
+python -m pip install -r requirements.txt
 ```
+
+## Setting Up the Finance Data API
+
+The project uses a custom FastAPI server to provide stock data for the portfolio optimization algorithm. The server fetches Dow Jones Industrial Average stock data using the Yahoo Finance API and serves it through a REST endpoint.
+
+### Starting the Finance Data API Server
+
+```bash
+# Navigate to the finance_data_api directory
+cd finance_data_api
+
+# Start the server
+python main.py
+```
+
+The server will start on http://0.0.0.0:8000 and will:
+- Automatically fetch and cache Dow Jones stock data on startup
+- Provide an API endpoint at `/api/dow-jones-data` that returns stock closing prices
+- Include API documentation at `/docs`
+
+By default, the server uses data from August 1, 2024 to December 31, 2024 for portfolio optimization.
 
 ### Building the Project
 
@@ -49,32 +77,56 @@ dune build
 
 ## Running the Application
 
+Before running the main application, ensure the Finance Data API server is running.
+
 ```bash
 # Execute the main program
 dune exec bin/main.exe
 ```
 
 The application will:
-1. Run the parallel simulation 5 times
-2. Run the sequential simulation 5 times
-3. Save the results to `data/simulation_results.csv`
+1. Fetch stock data from the Finance Data API
+2. Run the parallel simulation 5 times
+3. Run the sequential simulation 5 times
+4. Save the results to `data/simulation_results.csv`
+
+## Visualizing Performance Results
+
+After running the simulations, you can visualize the performance comparison:
+
+```bash
+# Run the visualization script
+python src/visualize_performance.py
+```
+
+This will generate a chart comparing the execution times of parallel and sequential implementations.
 
 ## Project Structure
 
 ```
-src/portifolio_opt/
-├── bin/                # Executable files
-│   ├── dune            # Dune configuration for executable
-│   └── main.ml         # Main program entry point
-├── lib/                # Library code
-│   ├── data_loader.ml  # Functions to load stock data from API
-│   ├── simulate.ml     # Portfolio simulation functions (sequential & parallel)
-│   ├── simulate.mli    # Interface for simulation module
-│   ├── util.ml         # Pure utility functions
-│   └── dune            # Dune configuration for library
-├── data/               # Stock data and simulation results
-├── dune-project        # Dune project configuration
-└── portifolio_opt.opam # OPAM package description
+portfolio-optimization-ocaml/
+├── finance_data_api/              # API for stock data
+│   ├── data/                      # Cached stock data
+│   ├── main.py                    # FastAPI server implementation
+│   └── requirements.txt           # Python dependencies for the API
+├── src/
+│   ├── portifolio_opt/            # OCaml portfolio optimization
+│   │   ├── bin/                   # Executable files
+│   │   │   ├── dune               # Dune configuration for executable
+│   │   │   └── main.ml            # Main program entry point
+│   │   ├── lib/                   # Library code
+│   │   │   ├── data_loader.ml     # Functions to load stock data from API
+│   │   │   ├── simulate.ml        # Portfolio simulation functions
+│   │   │   ├── simulate.mli       # Interface for simulation module
+│   │   │   ├── util.ml            # Pure utility functions
+│   │   │   └── dune               # Dune configuration for library
+│   │   ├── data/                  # Stock data and simulation results
+│   │   ├── dune-project           # Dune project configuration
+│   │   └── portifolio_opt.opam    # OPAM package description
+│   ├── images/                    # Visualization outputs
+│   ├── main.py                    # Python utility script
+│   ├── visualize_performance.py   # Performance visualization script
+│   └── requirements.txt           # Python dependencies for visualization
 ```
 
 ## Implementation Details
@@ -82,7 +134,8 @@ src/portifolio_opt/
 ### Data Loading
 
 The application:
-- Fetches Dow Jones stock data from a REST API (configurable between development and production environments)
+- Fetches Dow Jones stock data from the Finance Data API server
+- The API caches data to avoid repeated network requests to Yahoo Finance
 - Processes the JSON response into a structured format for analysis
 
 ### Parallelization Strategy
@@ -122,31 +175,42 @@ The output includes:
 
 Results are saved to a CSV file for further analysis and visualization.
 
-
 ## Performance Analysis
 
-Best Sharpe Ratio: 2.90287364313
+The portfolio optimization simulation achieved impressive results, finding an optimal portfolio with the following characteristics:
 
-ratio:
+### Best Portfolio Performance
+- **Sharpe Ratio**: 3.016 (Higher ratio indicates better risk-adjusted returns)
+- **Execution Time**: ~2,454 seconds for parallel implementation
 
-2.90287364313
+### Optimal Portfolio Composition in 2024 (2025-08-01 to 2025-12-31)
+The best-performing portfolio consists of 25 stocks with the following allocation:
 
-weights:
-0.0970452718715,0.0207892354143,0.0562847312819,0.00618950307233,0.00227178217803,0.0493384192776,0.00638512434297,0.0110230252086,0.0576687674505,0.0109848990128,0.00173025863101,0.0257987918207,0.0595276152684,0.106073097727,0.0517096243867,0.00116439429696,0.0223194816127,0.0145426066242,0.0125750402372,0.0179806627231,0.113867445415,0.0986223432968,0.0369507327886,0.010271729715,0.108885416346
+| Stock | Weight (%) | Stock | Weight (%) | Stock | Weight (%) |
+|-------|------------|-------|------------|-------|------------|
+| AAPL  | 10.09     | IBM   | 0.77      | MSFT  | 1.20      |
+| BA    | 1.99      | INTC  | 0.38      | NKE   | 1.19      |
+| CAT   | 6.01      | JNJ   | 0.34      | PG    | 9.63      |
+| CRM   | 7.21      | JPM   | 0.49      | TRV   | 0.82      |
+| CSCO  | 8.32      | MCD   | 5.43      | UNH   | 0.39      |
+| CVX   | 1.03      | MMM   | 3.37      | V     | 7.27      |
+| DIS   | 8.25      | MRK   | 1.46      | VZ    | 0.42      |
+| HD    | 5.60      | HON   | 10.03     | WBA   | 0.40      |
+| WMT   | 7.91      |       |           |       |           |
+
+This diversified portfolio balances investments across technology (AAPL, MSFT), finance (V, JPM), consumer goods (PG, WMT), and other sectors, with individual weights optimized for maximum risk-adjusted returns.
+
+## Using the best performing portfolio in 2024 to invest in the first trimestre of 2025
 
 
-stocks:
-AAPL,AMGN,AXP,BA,CAT,CRM,CSCO,CVX,DIS,DOW,GS,HD,HON,IBM,JPM,KO,MCD,MSFT,NKE,PG,TRV,V,VZ,WBA,WMT,
+## Performance comparison between sequential and parallel implementations
 
+![Performance Comparison](/src/images/parallel_vs_squencial.png)
 
+The performance comparison demonstrates a significant speedup achieved by the parallel implementation:
 
+- **Parallel Implementation**: ~40 minutes execution time
+- **Sequential Implementation**: ~201 minutes execution time
+- **Speedup Factor**: ~5x faster with parallel processing
 
-
-
-
-
-## References
-
-- Modern Portfolio Theory (Markowitz, 1952)
-- Sharpe, W. F. (1964). Capital asset prices: A theory of market equilibrium under conditions of risk
-- OCaml Multicore: https://github.com/ocaml-multicore/
+This dramatic improvement in execution time showcases the effectiveness of OCaml's multicore capabilities for computationally intensive portfolio optimization tasks.

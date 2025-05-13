@@ -23,6 +23,7 @@ let generate_weight_vector () =
 
 
 open Data_loader
+open Lacaml.D  (* Use double precision - D module *)
 
 (* return a 2D array of daily returns *)
 let generate_daily_return_matrix (stock_data: stock_data list) (stock_tickers: string list) =
@@ -56,19 +57,28 @@ let generate_daily_return_matrix (stock_data: stock_data list) (stock_tickers: s
   result
 
 
-(* Matrix-vector multiplication - pure OCaml implementation *)
+(* Matrix-vector multiplication using LACAML for better performance *)
 let matrix_vector_mul matrix vector =
-  let rows = Array.length matrix in
-  let result = Array.make rows 0.0 in
-  for i = 0 to rows - 1 do
-    let row = matrix.(i) in
-    let sum = ref 0.0 in
-    for j = 0 to Array.length vector - 1 do
-      sum := !sum +. row.(j) *. vector.(j)
-    done;
-    result.(i) <- !sum
+  let m = Array.length matrix in
+  let n = Array.length vector in
+  
+  (* Create LACAML matrix from OCaml array *)
+  let a = Mat.create m n in
+  for i = 1 to m do
+    for j = 1 to n do
+      (* LACAML uses 1-based indexing *)
+      a.{i,j} <- matrix.(i-1).(j-1)
+    done
   done;
-  result
+  
+  (* Create LACAML vector from OCaml array *)
+  let x = Vec.of_array vector in
+  
+  (* Perform matrix-vector multiplication using optimized BLAS *)
+  let result = gemv a x in
+  
+  (* Convert back to OCaml array *)
+  Vec.to_array result
 
 (* Calculate mean of an array *)
 let mean arr =

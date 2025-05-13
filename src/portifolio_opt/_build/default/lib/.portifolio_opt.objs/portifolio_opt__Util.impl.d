@@ -1,1 +1,1 @@
-lib/util.ml: Array Data_loader List Random
+lib/util.ml: Array Bigarray Data_loader Lacaml List Mat Random Vec
