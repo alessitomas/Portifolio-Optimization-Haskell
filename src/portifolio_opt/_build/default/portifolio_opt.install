@@ -4,5 +4,6 @@ lib: [
   "_build/install/default/lib/portifolio_opt/opam"
 ]
 bin: [
+  "_build/install/default/bin/evaluate_2025"
   "_build/install/default/bin/portifolio_opt"
 ]

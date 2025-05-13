@@ -2,3 +2,8 @@
  (public_name portifolio_opt)
  (name main)
  (libraries portifolio_opt csv unix))
+
+(executable
+ (public_name evaluate_2025)
+ (name evaluate_2025)
+ (libraries portifolio_opt csv unix cohttp-lwt-unix yojson))

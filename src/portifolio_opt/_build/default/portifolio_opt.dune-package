@@ -1,4 +1,4 @@
 (lang dune 3.18)
 (name portifolio_opt)
 (sections (lib .) (bin ../../bin))
-(files (lib (META dune-package opam)) (bin (portifolio_opt)))
+(files (lib (META dune-package opam)) (bin (evaluate_2025 portifolio_opt)))
